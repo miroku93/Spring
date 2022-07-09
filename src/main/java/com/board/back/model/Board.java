@@ -51,15 +51,14 @@ public class Board {
 	
 	@Lob
 	@Column(name = "bfile")
-	private Blob bfile;
+	private byte[] bfile;
 
 	public Board() {
 		super();
 	}
 
-
 	public Board(Integer no, int type, String title, String contents, Integer memberNo, Date createdTime,
-			Date updatedTime, Integer likes, Integer counts, Blob bfile) {
+			Date updatedTime, Integer likes, Integer counts, byte[] bfile) {
 		super();
 		this.no = no;
 		this.type = type;
@@ -73,106 +72,85 @@ public class Board {
 		this.bfile = bfile;
 	}
 
-
 	public Integer getNo() {
 		return no;
 	}
-
 
 	public void setNo(Integer no) {
 		this.no = no;
 	}
 
-
 	public int getType() {
 		return type;
 	}
-
 
 	public void setType(int type) {
 		this.type = type;
 	}
 
-
 	public String getTitle() {
 		return title;
 	}
-
 
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-
 	public String getContents() {
 		return contents;
 	}
-
 
 	public void setContents(String contents) {
 		this.contents = contents;
 	}
 
-
 	public Integer getMemberNo() {
 		return memberNo;
 	}
-
 
 	public void setMemberNo(Integer memberNo) {
 		this.memberNo = memberNo;
 	}
 
-
 	public Date getCreatedTime() {
 		return createdTime;
 	}
-
 
 	public void setCreatedTime(Date createdTime) {
 		this.createdTime = createdTime;
 	}
 
-
 	public Date getUpdatedTime() {
 		return updatedTime;
 	}
-
 
 	public void setUpdatedTime(Date updatedTime) {
 		this.updatedTime = updatedTime;
 	}
 
-
 	public Integer getLikes() {
 		return likes;
 	}
-
 
 	public void setLikes(Integer likes) {
 		this.likes = likes;
 	}
 
-
 	public Integer getCounts() {
 		return counts;
 	}
-
 
 	public void setCounts(Integer counts) {
 		this.counts = counts;
 	}
 
-
-	public Blob getBfile() {
+	public byte[] getBfile() {
 		return bfile;
 	}
 
-
-	public void setBfile(Blob bfile) {
+	public void setBfile(byte[] bfile) {
 		this.bfile = bfile;
 	}
-
 
 	@Override
 	public String toString() {

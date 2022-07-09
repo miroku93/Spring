@@ -1,12 +1,21 @@
 package com.board.back.controller;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,10 +30,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.board.back.util.JsonParsingUtil;
 import com.board.back.model.Board;
+import com.board.back.model.FileModel;
 import com.board.back.service.BoardService;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.sql.rowset.serial.SerialException;
-@CrossOrigin(origins = "http://localhost:3000")
+
+
+
+@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600)
+//@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api")
 public class BoardController {
@@ -44,38 +58,86 @@ public class BoardController {
 		return boardService.getPagingBoard(p_num);
 	}
 
+	//@PostMapping("/board/formData")
 	@PostMapping("/upload") 
-    public String form(@RequestPart MultipartFile file, @RequestPart("jsonList") String jsonList) throws IOException, SerialException, SQLException {
-	//public String form(@RequestPart MultipartFile file, @RequestPart("jsonList") String jsonList) throws IOException {
+    public Board createBoardF(@RequestPart List<MultipartFile> files, @RequestPart("jsonList") String jsonList) throws IOException, SerialException, SQLException {
+	//public Board form(@RequestPart MultipartFile files, @RequestPart("jsonList") String jsonList) throws IOException {
 	//public String form(@RequestPart MultipartFile file, @RequestPart Board board) throws IOException {
 		System.out.println("-------------/upload----------------");
-		String fileName = file.getName();
-		String originFileName = file.getOriginalFilename();
-		byte[] bytes = file.getBytes();
-		long filesize = file.getSize();		
-		Blob blob = new SerialBlob(file.getBytes());		
 		
+		int fileCnt = files.size();
+		System.out.println("fileCnt:" +fileCnt);
+//		
+//		String fileName[] = {""};
+//		String originFileName[] ={""};		
 		
-		System.out.println(originFileName +":"+ filesize);
-//		System.out.println(file);
-		
-		System.out.println(blob);
-		
-//	    JSONObject jObject = new JSONObject(jsonList);
-//	    int type = jObject.getInt("type");
-//	    String title = jObject.getString("title");
-//	    String contents = jObject.getString("contents");
-//	    int memberno = jObject.getInt("memberNo");
+//		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+//		for(MultipartFile file : files) {		    	
+//		   	map.add(file.getOriginalFilename(), new ByteArrayResource(file.getBytes()));
+//		   	map.add(file.getOriginalFilename(), new String(file.getContentType()));
+//		   	map.add(file.getOriginalFilename(), new Long(file.getSize()));
+//		}
 
+		List<FileModel> dtos = new ArrayList<FileModel>();
+	
+		for (MultipartFile file : files) {
+			FileModel dto = new FileModel();
+			String originalfileName = file.getOriginalFilename();
+			File dest = new File("C:/Image/" + originalfileName);
+			long filesize = file.getSize();
+			System.out.println("---------------------------------------");
+			System.out.println("originalfileName:" +file.getOriginalFilename());
+			System.out.println("filesize:" +file.getSize());
+			System.out.println("type:" +file.getContentType());
+			System.out.println("type:" +file.getBytes());
+						
+			dto.setFilename(originalfileName);
+			dto.setContent(file.getBytes());
+			dto.setType(file.getContentType());
+			dto.setFilesize(file.getSize());			
+			dtos.add(dto);	
+		}
+//		
+//		int i = 0;
+//		for( String filename : map.keySet() ){
+//			List<Object> value = map.get(filename);
+//			System.out.println( filename +":"+ value );
+//			dto.setFilename(filename);
+//			try {
+//				dto.setContent(convertObjectToBytes(value.get(0)));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			dto.setType(String.valueOf(value.get(1)));
+//			dto.setFilesize(Long.valueOf(String.valueOf(value.get(2))));
+//			
+//			dtos.add(i,dto);
+//			i++;
+//		}
+
+		System.out.println("jsonList:" +jsonList);
 		
-	    Board board = jUtil.SimpleGetJson(jsonList, blob);	    
+	    JSONObject jObject = new JSONObject(jsonList);
+	    int type1 = jObject.getInt("type");
+	    String title = jObject.getString("title");
+	    String contents = jObject.getString("contents");
+	    int memberno = jObject.getInt("memberNo");
+		
+		Board board  = new Board();    
+	    board.setType(type1);
+	    board.setTitle(title);
+	    board.setContents(contents);
+	    board.setMemberNo(memberno);	    
+	    //board.setBfile(bytes);
+	    
+	    
+	    //FileModel fileModel = jUtil.SimpleGetJson(jsonList, map);	    
 	    System.out.println("-----------------------form------------------------");	 
 		//System.out.println("type :" + board.getType() + ", title :" + board.getTitle() + ", contents :" + board.getContents() + ", memberno :" + board.getMemberNo());	 
 		
 		
 	    System.out.println("-----------------------createBoard------------------------");	 
-		boardService.createBoard(board);
-        return "upload-test";
+		return boardService.createBoard(board);
     }
 	
 	// get all board 
@@ -110,11 +172,20 @@ public class BoardController {
 	
 	// delete board
 	@DeleteMapping("/board/{no}")
-	public ResponseEntity<Map<String, Boolean>> deleteBoardByNo(
-			@PathVariable Integer no) {
+	//public ResponseEntity<Map<String, Boolean>> deleteBoardByNo(
+	public void deleteBoardByNo(@PathVariable Integer[] no){
+		System.out.println("-----------------------@DeleteMapping------------------------");
 		
-		return boardService.deleteBoard(no);
+		
+		//return boardService.deleteBoard(no);
 	}
 	
+	public static byte[] convertObjectToBytes(Object obj) throws IOException {
+	    ByteArrayOutputStream boas = new ByteArrayOutputStream();
+	    try (ObjectOutputStream ois = new ObjectOutputStream(boas)) {
+	        ois.writeObject(obj);
+	        return boas.toByteArray();
+	    }
+	}
 	
 }
