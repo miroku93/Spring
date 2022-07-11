@@ -90,14 +90,15 @@ public class BoardService {
 	}
 	
 	// delete board
-	public ResponseEntity<Map<String, Boolean>> deleteBoard(
-			Integer no) {
-		Board board = boardRepository.findById(no)
-				.orElseThrow(() -> new ResourceNotFoundException("Not exist Board Data by no : ["+no+"]"));
-		
-		boardRepository.delete(board);
-		Map<String, Boolean> response = new HashMap<>();
-		response.put("Deleted Board Data by id : ["+no+"]", Boolean.TRUE);
-		return ResponseEntity.ok(response);
+	public Map<String, Boolean> deleteBoard(Integer no) {
+		System.out.println("----------------deleteBoard!!!----------------------" + no);
+			Board board = boardRepository.findById(no)
+					.orElseThrow(() -> new ResourceNotFoundException("Not exist Board Data by no : ["+ no + "]"));
+			
+			boardRepository.delete(board);
+			Map<String, Boolean> response = new HashMap<>();
+			response.put("Deleted Board Data by id : ["+no+"]", Boolean.TRUE);
+
+		return response;
 	}
 }

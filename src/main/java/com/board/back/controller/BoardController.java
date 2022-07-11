@@ -7,6 +7,8 @@ import java.io.ObjectOutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.board.back.util.JsonParsingUtil;
@@ -54,10 +57,30 @@ public class BoardController {
 		
 		System.out.println("-------------getAllBoards in----------------");
 		if (p_num == null || p_num <= 0) p_num = 1;
+
+		// 초기화 확인	
+//		List<File> fileList = new ArrayList<File>();
+//		File tfile = new File("");
+//		fileList.add(tfile);
+//		
+//		List<FileModel> dtos = new ArrayList<FileModel>();
+//		FileModel dto = new FileModel();		
+//		dtos.add(dto);	
+//		test (fileList,  dtos);		
 		
 		return boardService.getPagingBoard(p_num);
 	}
 
+	public void test (List<File> fileList, List<FileModel> dtos){
+		System.out.println("-----------------------test------------------------");	
+		System.out.println("fileList.size():" + fileList.size());	
+		System.out.println("fileList.get(0).getName():" + fileList.get(0).getName());	
+		
+		dtos.get(0).getFilename();
+		System.out.println("dtos.size():" + dtos.size());	
+		System.out.println("dtos.get(0).getFilename():" + dtos.get(0).getFilename());		
+	}	
+	
 	//@PostMapping("/board/formData")
 	@PostMapping("/upload") 
     public Board createBoardF(@RequestPart List<MultipartFile> files, @RequestPart("jsonList") String jsonList) throws IOException, SerialException, SQLException {
@@ -77,6 +100,11 @@ public class BoardController {
 //		   	map.add(file.getOriginalFilename(), new String(file.getContentType()));
 //		   	map.add(file.getOriginalFilename(), new Long(file.getSize()));
 //		}
+
+		
+
+		List<File> fileList = new ArrayList<File>();
+
 
 		List<FileModel> dtos = new ArrayList<FileModel>();
 	
@@ -172,12 +200,17 @@ public class BoardController {
 	
 	// delete board
 	@DeleteMapping("/board/{no}")
-	//public ResponseEntity<Map<String, Boolean>> deleteBoardByNo(
-	public void deleteBoardByNo(@PathVariable Integer[] no){
-		System.out.println("-----------------------@DeleteMapping------------------------");
+	public ResponseEntity<Map<String, Boolean>> deleteBoardByNo(@PathVariable Integer[] no){
+		System.out.println("-----------------------@DeleteMapping------------------------");	
 		
-		
-		//return boardService.deleteBoard(no);
+		Map<String, Boolean> response = new HashMap<>();
+		for (Integer i : no) {
+			System.out.println(i);
+			boardService.deleteBoard(i);
+			response.put("Deleted Board Data by id : ["+i+"]", Boolean.TRUE);
+		 }
+			
+		return ResponseEntity.ok(response);
 	}
 	
 	public static byte[] convertObjectToBytes(Object obj) throws IOException {
