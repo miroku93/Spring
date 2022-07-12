@@ -25,8 +25,8 @@ public class PagingUtil {
 	 */
 	public PagingUtil() {
 		this.currentPageNum = 1;
-		this.objectCountPerPage = 10;
-		this.pageNumCountPerPage = 10;
+		this.objectCountPerPage = 5;
+		this.pageNumCountPerPage = 5;
 
 		setObjectStartAndEnd();
 	}
@@ -101,7 +101,11 @@ public class PagingUtil {
 			
 			this.pageNumEnd = (pageNumCountTotal < tmpPageNumEnd) ? pageNumCountTotal : tmpPageNumEnd;
 			
-			this.isPrev = (currentPageNum > pageNumCountPerPage) ? true : false;
+			this.isPrev = (currentPageNum > pageNumCountPerPage || currentPageNum > pageNumStart) ? true : false;
+			System.out.println("currentPageNum:"+currentPageNum);
+			System.out.println("pageNumCountPerPage:"+pageNumCountPerPage);
+			System.out.println("this.isPrev:"+this.isPrev);
+			
 			this.isNext = (pageNumEnd < pageNumCountTotal || (pageNumStart < pageNumEnd && currentPageNum < pageNumCountTotal)  ) ? true : false;
 			
 			this.objectEndNum = (objectCountTotal < objectEndNum) ? objectCountTotal : objectEndNum;
